@@ -1,0 +1,69 @@
+{{define "page"}}
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>{{.DocumentTitle}}</title>
+  <link rel="stylesheet" href="/static/style.css">
+</head>
+<body>
+  <header class="masthead">
+    <div class="brand">
+      <a class="brand-mark" href="/">wikiclaudia</a>
+      <p class="brand-domain">{{.SiteTitle}}</p>
+    </div>
+    <nav class="masthead-nav" aria-label="Primary">
+      <a class="nav-link {{if .ActiveHome}}active{{end}}" href="/">Home</a>
+      <a class="nav-link {{if .ActiveOverview}}active{{end}}" href="/overview">Overview</a>
+    </nav>
+  </header>
+
+  <main class="page-shell">
+    <div class="content-grid {{if not .TOC}}no-toc{{end}}">
+      <article class="article-card">
+        {{if .Meta}}
+        <section class="metadata" aria-label="Article metadata">
+          <div class="meta-row">
+            <span class="meta-label">Updated</span>
+            <span class="meta-value">{{.Meta.Updated}}</span>
+          </div>
+          <div class="meta-row">
+            <span class="meta-label">Tags</span>
+            <span class="meta-value">
+              {{range .Meta.Tags}}<span class="chip">{{.}}</span>{{end}}
+            </span>
+          </div>
+          <div class="meta-row">
+            <span class="meta-label">Sources</span>
+            <span class="meta-value">
+              {{range .Meta.Sources}}
+              <a class="chip source-chip {{if .Missing}}missing{{end}}" href="{{.Href}}">{{.Label}}</a>
+              {{end}}
+            </span>
+          </div>
+        </section>
+        {{end}}
+
+        <div class="article-body">
+          {{.HTML}}
+        </div>
+      </article>
+
+      {{if .TOC}}
+      <aside class="toc-card" aria-label="Table of contents">
+        <h2>Contents</h2>
+        <ol class="toc-list">
+          {{range .TOC}}
+          <li class="toc-level-{{.Level}}">
+            <a href="#{{.ID}}">{{.Text}}</a>
+          </li>
+          {{end}}
+        </ol>
+      </aside>
+      {{end}}
+    </div>
+  </main>
+</body>
+</html>
+{{end}}
