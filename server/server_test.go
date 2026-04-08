@@ -33,6 +33,7 @@ func TestRoutesServeExpectedContent(t *testing.T) {
 	t.Cleanup(server.Close)
 
 	assertBodyContains(t, server.URL+"/", http.StatusOK, "Home")
+	assertBodyContains(t, server.URL+"/", http.StatusOK, "data-theme-toggle")
 	assertBodyContains(t, server.URL+"/overview", http.StatusOK, "Overview")
 	assertBodyContains(t, server.URL+"/wiki/alpha-page", http.StatusOK, "Alpha Page")
 }

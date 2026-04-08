@@ -10,6 +10,48 @@
   --red-link: #ba0000;
   --accent: #eaecf0;
   --shadow: 0 16px 40px rgba(32, 33, 34, 0.08);
+  --page-overlay-start: rgba(248, 246, 241, 0.96);
+  --page-overlay-end: rgba(245, 241, 230, 0.9);
+  --pattern-line: rgba(162, 169, 177, 0.04);
+  --chrome-bg-start: rgba(255, 255, 255, 0.95);
+  --chrome-bg-end: rgba(250, 247, 240, 0.96);
+  --nav-bg: rgba(255, 255, 255, 0.85);
+  --meta-bg-start: rgba(248, 249, 250, 0.9);
+  --meta-bg-end: rgba(255, 255, 255, 0.9);
+  --quote-bg: rgba(248, 249, 250, 0.9);
+  --code-bg: rgba(234, 236, 240, 0.9);
+  --pre-bg: #f8f9fa;
+  --heading: #111827;
+  --button-text: var(--text);
+  color-scheme: light;
+}
+
+:root[data-theme="dark"] {
+  --page-bg: #101418;
+  --panel-bg: #171c22;
+  --border: #38414b;
+  --border-strong: #687385;
+  --text: #edf1f5;
+  --muted: #b7c0cc;
+  --link: #8ab4ff;
+  --link-visited: #c7a8ff;
+  --red-link: #ff8a80;
+  --accent: #222933;
+  --shadow: 0 20px 48px rgba(0, 0, 0, 0.34);
+  --page-overlay-start: rgba(14, 18, 22, 0.96);
+  --page-overlay-end: rgba(16, 20, 24, 0.94);
+  --pattern-line: rgba(138, 180, 255, 0.05);
+  --chrome-bg-start: rgba(20, 25, 31, 0.96);
+  --chrome-bg-end: rgba(16, 20, 24, 0.97);
+  --nav-bg: rgba(23, 28, 34, 0.88);
+  --meta-bg-start: rgba(31, 37, 46, 0.9);
+  --meta-bg-end: rgba(23, 28, 34, 0.92);
+  --quote-bg: rgba(31, 37, 46, 0.92);
+  --code-bg: rgba(42, 50, 62, 0.92);
+  --pre-bg: #11161c;
+  --heading: #f7fafc;
+  --button-text: #edf1f5;
+  color-scheme: dark;
 }
 
 * {
@@ -18,11 +60,11 @@
 
 html {
   background:
-    linear-gradient(180deg, rgba(248, 246, 241, 0.96), rgba(245, 241, 230, 0.9)),
+    linear-gradient(180deg, var(--page-overlay-start), var(--page-overlay-end)),
     repeating-linear-gradient(
       90deg,
-      rgba(162, 169, 177, 0.04),
-      rgba(162, 169, 177, 0.04) 1px,
+      var(--pattern-line),
+      var(--pattern-line) 1px,
       transparent 1px,
       transparent 32px
     );
@@ -34,6 +76,7 @@ html {
 body {
   margin: 0;
   min-height: 100vh;
+  background: transparent;
   color: var(--text);
   font-family: Georgia, Cambria, "Times New Roman", Times, serif;
   line-height: 1.65;
@@ -59,7 +102,7 @@ a:visited {
   gap: 1rem;
   padding: 1rem 1.5rem 1.25rem;
   border-bottom: 1px solid var(--border);
-  background: linear-gradient(180deg, rgba(255, 255, 255, 0.95), rgba(250, 247, 240, 0.96));
+  background: linear-gradient(180deg, var(--chrome-bg-start), var(--chrome-bg-end));
   position: sticky;
   top: 0;
   z-index: 10;
@@ -98,14 +141,40 @@ a:visited {
 .nav-link {
   display: inline-flex;
   align-items: center;
+  justify-content: center;
   min-height: 2.2rem;
   padding: 0 0.9rem;
   border: 1px solid var(--border);
   border-radius: 999px;
-  background: rgba(255, 255, 255, 0.85);
+  background: var(--nav-bg);
   color: var(--text);
   font-family: "Avenir Next", "Segoe UI", sans-serif;
   font-size: 0.95rem;
+}
+
+.theme-toggle {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  min-height: 2.2rem;
+  padding: 0 0.9rem;
+  border: 1px solid var(--border);
+  border-radius: 999px;
+  background: var(--nav-bg);
+  color: var(--button-text);
+  cursor: pointer;
+  font: inherit;
+  font-family: "Avenir Next", "Segoe UI", sans-serif;
+  font-size: 0.95rem;
+}
+
+.theme-toggle:hover {
+  text-decoration: underline;
+}
+
+.theme-toggle:focus-visible {
+  outline: 2px solid var(--link);
+  outline-offset: 2px;
 }
 
 .nav-link.active {
@@ -179,7 +248,7 @@ a:visited {
   margin-bottom: 1.35rem;
   padding: 1rem 1rem 1.05rem;
   border: 1px solid var(--border);
-  background: linear-gradient(180deg, rgba(248, 249, 250, 0.9), rgba(255, 255, 255, 0.9));
+  background: linear-gradient(180deg, var(--meta-bg-start), var(--meta-bg-end));
 }
 
 .meta-row {
@@ -211,7 +280,7 @@ a:visited {
   padding: 0.1rem 0.7rem;
   border: 1px solid var(--border);
   border-radius: 999px;
-  background: #fff;
+  background: var(--panel-bg);
   color: var(--text);
   font-size: 0.92rem;
   line-height: 1.2;
@@ -230,7 +299,7 @@ a:visited {
 .article-body h2,
 .article-body h3,
 .article-body h4 {
-  color: #111827;
+  color: var(--heading);
   line-height: 1.25;
 }
 
@@ -267,13 +336,13 @@ a:visited {
   padding: 0.2rem 1rem;
   border-left: 4px solid var(--border-strong);
   color: var(--muted);
-  background: rgba(248, 249, 250, 0.9);
+  background: var(--quote-bg);
 }
 
 .article-body code {
   padding: 0.1rem 0.35rem;
   border-radius: 4px;
-  background: rgba(234, 236, 240, 0.9);
+  background: var(--code-bg);
   font-size: 0.92em;
 }
 
@@ -281,7 +350,7 @@ a:visited {
   overflow-x: auto;
   padding: 1rem;
   border: 1px solid var(--border);
-  background: #f8f9fa;
+  background: var(--pre-bg);
 }
 
 .wiki-link.missing,

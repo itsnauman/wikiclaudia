@@ -5,6 +5,28 @@
   <meta charset="utf-8">
   <meta name="viewport" content="width=device-width, initial-scale=1">
   <title>{{.DocumentTitle}}</title>
+  <script>
+    (function() {
+      var key = "wikiclaudia-theme";
+      var root = document.documentElement;
+      var theme = "light";
+
+      try {
+        var stored = localStorage.getItem(key);
+        if (stored === "dark" || stored === "light") {
+          theme = stored;
+        } else if (window.matchMedia && window.matchMedia("(prefers-color-scheme: dark)").matches) {
+          theme = "dark";
+        }
+      } catch (error) {
+        if (window.matchMedia && window.matchMedia("(prefers-color-scheme: dark)").matches) {
+          theme = "dark";
+        }
+      }
+
+      root.dataset.theme = theme;
+    })();
+  </script>
   <link rel="stylesheet" href="/static/style.css">
 </head>
 <body>
@@ -16,6 +38,9 @@
     <nav class="masthead-nav" aria-label="Primary">
       <a class="nav-link {{if .ActiveHome}}active{{end}}" href="/">Home</a>
       <a class="nav-link {{if .ActiveOverview}}active{{end}}" href="/overview">Overview</a>
+      <button class="theme-toggle" type="button" data-theme-toggle aria-label="Toggle dark mode" aria-pressed="false">
+        Dark mode
+      </button>
     </nav>
   </header>
 
@@ -64,6 +89,38 @@
       {{end}}
     </div>
   </main>
+  <script>
+    (function() {
+      var key = "wikiclaudia-theme";
+      var root = document.documentElement;
+      var button = document.querySelector("[data-theme-toggle]");
+      if (!button) {
+        return;
+      }
+
+      function currentTheme() {
+        return root.dataset.theme === "dark" ? "dark" : "light";
+      }
+
+      function applyTheme(theme) {
+        root.dataset.theme = theme;
+        button.setAttribute("aria-pressed", String(theme === "dark"));
+        button.textContent = theme === "dark" ? "Light mode" : "Dark mode";
+      }
+
+      applyTheme(currentTheme());
+
+      button.addEventListener("click", function() {
+        var nextTheme = currentTheme() === "dark" ? "light" : "dark";
+        applyTheme(nextTheme);
+
+        try {
+          localStorage.setItem(key, nextTheme);
+        } catch (error) {
+        }
+      });
+    })();
+  </script>
 </body>
 </html>
 {{end}}
