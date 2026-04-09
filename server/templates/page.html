@@ -39,7 +39,7 @@
       <a class="nav-link {{if .ActiveHome}}active{{end}}" href="/">Home</a>
       <a class="nav-link {{if .ActiveOverview}}active{{end}}" href="/overview">Overview</a>
       <button class="theme-toggle" type="button" data-theme-toggle aria-label="Toggle dark mode" aria-pressed="false">
-        Dark mode
+        <span class="visually-hidden">Toggle dark mode</span>
       </button>
     </nav>
   </header>
@@ -105,7 +105,6 @@
       function applyTheme(theme) {
         root.dataset.theme = theme;
         button.setAttribute("aria-pressed", String(theme === "dark"));
-        button.textContent = theme === "dark" ? "Light mode" : "Dark mode";
       }
 
       applyTheme(currentTheme());

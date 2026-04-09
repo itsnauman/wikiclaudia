@@ -154,6 +154,37 @@ a:visited {
   outline-offset: 2px;
 }
 
+.theme-toggle {
+  font-size: 1.15rem;
+  line-height: 1;
+  color: var(--text);
+}
+
+.theme-toggle::before {
+  content: "\263E\FE0E";
+}
+
+:root[data-theme="dark"] .theme-toggle::before {
+  content: "\2600\FE0E";
+}
+
+.theme-toggle:hover {
+  text-decoration: none;
+  color: var(--link);
+}
+
+.visually-hidden {
+  position: absolute;
+  width: 1px;
+  height: 1px;
+  padding: 0;
+  margin: -1px;
+  overflow: hidden;
+  clip: rect(0, 0, 0, 0);
+  white-space: nowrap;
+  border: 0;
+}
+
 .nav-link.active {
   color: var(--text);
   font-weight: 700;
