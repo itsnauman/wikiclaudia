@@ -9,8 +9,8 @@ import (
 	"strings"
 	"testing"
 
-	"wikiclaudia/testfixture"
-	"wikiclaudia/wiki"
+	"github.com/itsnauman/wikiclaudia/testfixture"
+	"github.com/itsnauman/wikiclaudia/wiki"
 )
 
 func newTestApp(t *testing.T) (*App, string) {

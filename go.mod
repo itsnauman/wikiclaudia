@@ -1,4 +1,4 @@
-module wikiclaudia
+module github.com/itsnauman/wikiclaudia
 
 go 1.22
 

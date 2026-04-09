@@ -5,8 +5,8 @@ import (
 	"strings"
 	"testing"
 
-	"wikiclaudia/testfixture"
-	"wikiclaudia/wiki"
+	"github.com/itsnauman/wikiclaudia/testfixture"
+	"github.com/itsnauman/wikiclaudia/wiki"
 )
 
 func TestValidateRootAcceptsMinimalWiki(t *testing.T) {

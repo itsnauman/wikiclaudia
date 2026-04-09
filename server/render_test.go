@@ -4,7 +4,7 @@ import (
 	"strings"
 	"testing"
 
-	"wikiclaudia/wiki"
+	"github.com/itsnauman/wikiclaudia/wiki"
 )
 
 func TestRendererConvertsWikiLinks(t *testing.T) {

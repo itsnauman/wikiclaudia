@@ -14,8 +14,8 @@ import (
 	"strconv"
 	"syscall"
 
-	"wikiclaudia/server"
-	"wikiclaudia/wiki"
+	"github.com/itsnauman/wikiclaudia/server"
+	"github.com/itsnauman/wikiclaudia/wiki"
 )
 
 type config struct {

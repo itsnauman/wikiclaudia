@@ -9,7 +9,7 @@ import (
 	"path/filepath"
 	"strings"
 
-	"wikiclaudia/wiki"
+	"github.com/itsnauman/wikiclaudia/wiki"
 )
 
 //go:embed templates/*.html static/style.css
