@@ -326,16 +326,11 @@ func normalizePath(path string) string {
 }
 
 func validateSlug(slug string) error {
-	switch {
-	case slug == "":
+	if slug == "" {
 		return fmt.Errorf("slug is required")
-	case filepath.Base(slug) != slug:
-		return fmt.Errorf("invalid slug %q", slug)
-	case strings.Contains(slug, ".."):
-		return fmt.Errorf("invalid slug %q", slug)
-	case strings.ContainsAny(slug, `/\`):
-		return fmt.Errorf("invalid slug %q", slug)
-	default:
-		return nil
 	}
+	if filepath.Base(slug) != slug || strings.Contains(slug, "..") || strings.ContainsAny(slug, `/\`) {
+		return fmt.Errorf("invalid slug %q", slug)
+	}
+	return nil
 }
