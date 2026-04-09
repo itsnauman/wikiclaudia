@@ -13,7 +13,9 @@ import (
 	"wikiclaudia/wiki"
 )
 
-func TestRoutesServeExpectedContent(t *testing.T) {
+func newTestApp(t *testing.T) (*App, string) {
+	t.Helper()
+
 	root := t.TempDir()
 	if err := testfixture.WriteMinimalWiki(root, testfixture.Options{}); err != nil {
 		t.Fatalf("write fixture: %v", err)
@@ -28,6 +30,12 @@ func TestRoutesServeExpectedContent(t *testing.T) {
 	if err != nil {
 		t.Fatalf("New returned error: %v", err)
 	}
+
+	return app, root
+}
+
+func TestRoutesServeExpectedContent(t *testing.T) {
+	app, _ := newTestApp(t)
 
 	server := httptest.NewServer(app)
 	t.Cleanup(server.Close)
@@ -39,20 +47,7 @@ func TestRoutesServeExpectedContent(t *testing.T) {
 }
 
 func TestMissingPageReturns404(t *testing.T) {
-	root := t.TempDir()
-	if err := testfixture.WriteMinimalWiki(root, testfixture.Options{}); err != nil {
-		t.Fatalf("write fixture: %v", err)
-	}
-
-	site, err := wiki.ValidateRoot(root)
-	if err != nil {
-		t.Fatalf("ValidateRoot returned error: %v", err)
-	}
-
-	app, err := New(site)
-	if err != nil {
-		t.Fatalf("New returned error: %v", err)
-	}
+	app, _ := newTestApp(t)
 
 	recorder := httptest.NewRecorder()
 	request := httptest.NewRequest(http.MethodGet, "/wiki/does-not-exist", nil)
@@ -64,20 +59,7 @@ func TestMissingPageReturns404(t *testing.T) {
 }
 
 func TestAssetsRouteServesLocalFiles(t *testing.T) {
-	root := t.TempDir()
-	if err := testfixture.WriteMinimalWiki(root, testfixture.Options{}); err != nil {
-		t.Fatalf("write fixture: %v", err)
-	}
-
-	site, err := wiki.ValidateRoot(root)
-	if err != nil {
-		t.Fatalf("ValidateRoot returned error: %v", err)
-	}
-
-	app, err := New(site)
-	if err != nil {
-		t.Fatalf("New returned error: %v", err)
-	}
+	app, _ := newTestApp(t)
 
 	server := httptest.NewServer(app)
 	t.Cleanup(server.Close)
@@ -102,20 +84,7 @@ func TestAssetsRouteServesLocalFiles(t *testing.T) {
 }
 
 func TestServerReadsFreshContentOnEachRequest(t *testing.T) {
-	root := t.TempDir()
-	if err := testfixture.WriteMinimalWiki(root, testfixture.Options{}); err != nil {
-		t.Fatalf("write fixture: %v", err)
-	}
-
-	site, err := wiki.ValidateRoot(root)
-	if err != nil {
-		t.Fatalf("ValidateRoot returned error: %v", err)
-	}
-
-	app, err := New(site)
-	if err != nil {
-		t.Fatalf("New returned error: %v", err)
-	}
+	app, root := newTestApp(t)
 
 	server := httptest.NewServer(app)
 	t.Cleanup(server.Close)
