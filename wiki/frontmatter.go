@@ -31,11 +31,7 @@ func SplitFrontmatter(content []byte) (string, []byte, bool, error) {
 	}
 
 	lines := make([]string, 0, 8)
-	for offset <= len(content) {
-		if offset == len(content) {
-			break
-		}
-
+	for offset < len(content) {
 		line, next := nextLine(content, offset)
 		offset = next
 
