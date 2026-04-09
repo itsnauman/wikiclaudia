@@ -7,11 +7,10 @@ import (
 )
 
 type Options struct {
-	MissingRequired            string
-	NestedPageDir              bool
-	InvalidOverviewFrontmatter bool
-	InvalidPageFrontmatter     bool
-	SchemaPath                 string
+	MissingRequired        string
+	NestedPageDir          bool
+	InvalidPageFrontmatter bool
+	SchemaPath             string
 }
 
 func WriteMinimalWiki(root string, opts Options) error {
@@ -112,21 +111,6 @@ Bibliographic note.
 		}
 		if err := os.WriteFile(targetPath, []byte(content), 0o644); err != nil {
 			return fmt.Errorf("write %s: %w", targetPath, err)
-		}
-	}
-
-	if opts.InvalidOverviewFrontmatter {
-		overviewPath := filepath.Join(root, "wiki", "overview.md")
-		content := `---
-title: Overview
-sources: [source-entry]
-updated: 2026-04-07
----
-
-# Overview
-`
-		if err := os.WriteFile(overviewPath, []byte(content), 0o644); err != nil {
-			return fmt.Errorf("write invalid overview: %w", err)
 		}
 	}
 
