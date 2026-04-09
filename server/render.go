@@ -3,9 +3,7 @@ package server
 import (
 	"bytes"
 	"fmt"
-	stdhtml "html"
 	"html/template"
-	"net/url"
 	"regexp"
 	"strings"
 	"unicode"
@@ -18,9 +16,12 @@ import (
 	"github.com/yuin/goldmark/parser"
 	gmhtml "github.com/yuin/goldmark/renderer/html"
 	"github.com/yuin/goldmark/text"
+	"github.com/yuin/goldmark/util"
 )
 
 var wikiLinkPattern = regexp.MustCompile(`\[\[([^\[\]\r\n]+)\]\]`)
+
+var wikiLinkTargetsKey = parser.NewContextKey()
 
 type Renderer struct {
 	markdown goldmark.Markdown
@@ -33,19 +34,22 @@ type TOCEntry struct {
 }
 
 func NewRenderer() *Renderer {
-	return &Renderer{
-		markdown: goldmark.New(
-			goldmark.WithExtensions(extension.GFM),
-			goldmark.WithRendererOptions(gmhtml.WithUnsafe()),
-			goldmark.WithParserOptions(parser.WithAttribute(), parser.WithAutoHeadingID()),
-		),
-	}
+	md := goldmark.New(
+		goldmark.WithExtensions(extension.GFM),
+		goldmark.WithRendererOptions(gmhtml.WithUnsafe()),
+		goldmark.WithParserOptions(parser.WithAttribute(), parser.WithAutoHeadingID()),
+	)
+	md.Parser().AddOptions(parser.WithInlineParsers(
+		util.Prioritized(&wikiLinkInlineParser{}, 199),
+	))
+	return &Renderer{markdown: md}
 }
 
 func (r *Renderer) Render(markdown string, targets map[string]wiki.LinkTarget) (template.HTML, []TOCEntry, error) {
-	processed := rewriteWikiLinks(markdown, targets)
-	source := []byte(processed)
-	document := r.markdown.Parser().Parse(text.NewReader(source))
+	source := []byte(markdown)
+	pc := parser.NewContext()
+	pc.Set(wikiLinkTargetsKey, targets)
+	document := r.markdown.Parser().Parse(text.NewReader(source), parser.WithContext(pc))
 	toc := assignHeadingIDs(document, source)
 
 	var output bytes.Buffer
@@ -79,39 +83,55 @@ func collectWikiLinkSlugs(markdown string) []string {
 	return slugs
 }
 
-func rewriteWikiLinks(markdown string, targets map[string]wiki.LinkTarget) string {
-	return wikiLinkPattern.ReplaceAllStringFunc(markdown, func(match string) string {
-		parts := wikiLinkPattern.FindStringSubmatch(match)
-		if len(parts) != 2 {
-			return match
-		}
+// wikiLinkInlineParser turns [[slug]] tokens into ast.Link nodes during
+// inline parsing. Because goldmark dispatches inline parsers only outside of
+// code spans and code blocks, wiki-link syntax inside fenced/indented code or
+// backticks is left untouched.
+type wikiLinkInlineParser struct{}
 
-		slug := strings.TrimSpace(parts[1])
-		target, ok := targets[slug]
-		if !ok {
-			target = wiki.LinkTarget{
-				Slug:  slug,
-				Title: wiki.HumanizeSlug(slug),
-			}
-		}
+func (p *wikiLinkInlineParser) Trigger() []byte {
+	return []byte{'['}
+}
 
-		className := "wiki-link"
-		if !target.Exists {
-			className += " missing"
-		}
+func (p *wikiLinkInlineParser) Parse(parent ast.Node, block text.Reader, pc parser.Context) ast.Node {
+	line, _ := block.PeekLine()
+	if len(line) < 4 || line[0] != '[' || line[1] != '[' {
+		return nil
+	}
+	end := bytes.Index(line[2:], []byte("]]"))
+	if end < 0 {
+		return nil
+	}
+	inner := line[2 : 2+end]
+	if bytes.ContainsAny(inner, "[]\r\n") {
+		return nil
+	}
+	slug := strings.TrimSpace(string(inner))
+	if slug == "" {
+		return nil
+	}
+	block.Advance(2 + end + 2)
 
-		label := target.Title
-		if label == "" {
-			label = wiki.HumanizeSlug(slug)
-		}
+	targets, _ := pc.Get(wikiLinkTargetsKey).(map[string]wiki.LinkTarget)
+	target, ok := targets[slug]
+	if !ok {
+		target = wiki.LinkTarget{Slug: slug, Title: wiki.HumanizeSlug(slug)}
+	}
+	label := target.Title
+	if label == "" {
+		label = wiki.HumanizeSlug(slug)
+	}
 
-		return fmt.Sprintf(
-			`<a class="%s" href="/wiki/%s">%s</a>`,
-			className,
-			url.PathEscape(slug),
-			stdhtml.EscapeString(label),
-		)
-	})
+	className := "wiki-link"
+	if !target.Exists {
+		className += " missing"
+	}
+
+	link := ast.NewLink()
+	link.Destination = []byte("/wiki/" + slug)
+	link.SetAttributeString("class", []byte(className))
+	link.AppendChild(link, ast.NewString([]byte(label)))
+	return link
 }
 
 func assignHeadingIDs(document ast.Node, source []byte) []TOCEntry {

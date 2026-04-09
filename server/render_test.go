@@ -21,8 +21,30 @@ func TestRendererConvertsWikiLinks(t *testing.T) {
 	}
 
 	output := string(html)
-	if !strings.Contains(output, `<a class="wiki-link" href="/wiki/alpha-page">Alpha Page</a>`) {
+	if !strings.Contains(output, `<a href="/wiki/alpha-page" class="wiki-link">Alpha Page</a>`) {
 		t.Fatalf("unexpected output: %s", output)
+	}
+}
+
+func TestRendererLeavesWikiLinksInsideCodeAlone(t *testing.T) {
+	renderer := NewRenderer()
+	body := "Inline `[[alpha-page]]` stays literal.\n\n```\n[[alpha-page]]\n```\n"
+	html, _, err := renderer.Render(body, map[string]wiki.LinkTarget{
+		"alpha-page": {Slug: "alpha-page", Exists: true, Title: "Alpha Page"},
+	})
+	if err != nil {
+		t.Fatalf("Render returned error: %v", err)
+	}
+
+	output := string(html)
+	if !strings.Contains(output, "<code>[[alpha-page]]</code>") {
+		t.Fatalf("inline code should preserve literal brackets: %s", output)
+	}
+	if !strings.Contains(output, "<pre><code>[[alpha-page]]\n</code></pre>") {
+		t.Fatalf("fenced code block should preserve literal brackets: %s", output)
+	}
+	if strings.Contains(output, `class="wiki-link"`) {
+		t.Fatalf("wiki-link class should not appear inside code regions: %s", output)
 	}
 }
 
