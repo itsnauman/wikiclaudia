@@ -11,6 +11,17 @@ import (
 
 var ErrPageNotFound = errors.New("page not found")
 
+// NotAWikiError is returned when a directory does not look like a wikiclaudia
+// wiki at all (currently: no SCHEMA.md). Callers can pull the root path out
+// with errors.As and format a helpful message.
+type NotAWikiError struct {
+	Root string
+}
+
+func (e *NotAWikiError) Error() string {
+	return fmt.Sprintf("not a wikiclaudia wiki: %s", e.Root)
+}
+
 type Schema struct {
 	IdentityPath string
 	Domain       string
@@ -182,6 +193,16 @@ func HumanizeSlug(slug string) string {
 }
 
 func validateRequiredEntries(root string) error {
+	// SCHEMA.md is the identifier file — if it's missing, this isn't a
+	// wikiclaudia wiki at all, so surface a distinct error instead of the
+	// generic "missing required file" message.
+	if _, err := os.Stat(filepath.Join(root, "SCHEMA.md")); err != nil {
+		if errors.Is(err, os.ErrNotExist) {
+			return &NotAWikiError{Root: root}
+		}
+		return fmt.Errorf("stat SCHEMA.md: %w", err)
+	}
+
 	requiredFiles := []string{
 		"SCHEMA.md",
 		filepath.Join("wiki", "index.md"),

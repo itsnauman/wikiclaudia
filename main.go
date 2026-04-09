@@ -38,12 +38,28 @@ func main() {
 	flag.Parse()
 
 	if err := run(os.Stdout, os.Stderr, cfg); err != nil {
-		errStyle := newStyle(os.Stderr)
-		fmt.Fprintln(os.Stderr)
-		fmt.Fprintln(os.Stderr, "  "+errStyle.errorLine(err.Error()))
-		fmt.Fprintln(os.Stderr)
+		printRunError(os.Stderr, err)
 		os.Exit(1)
 	}
+}
+
+func printRunError(w io.Writer, err error) {
+	s := newStyle(w)
+
+	fmt.Fprintln(w)
+
+	var notWiki *wiki.NotAWikiError
+	if errors.As(err, &notWiki) {
+		fmt.Fprintln(w, "  "+s.errorLabel()+" this directory is not a wikiclaudia wiki")
+		fmt.Fprintln(w, "         "+s.dim("no SCHEMA.md at "+shortenPath(notWiki.Root)))
+		fmt.Fprintln(w)
+		fmt.Fprintln(w, "  wikiclaudia reads wikis produced by wiki-skills:")
+		fmt.Fprintln(w, "  "+s.link("https://github.com/itsnauman/wiki-skills"))
+	} else {
+		fmt.Fprintln(w, "  "+s.errorLabel()+" "+err.Error())
+	}
+
+	fmt.Fprintln(w)
 }
 
 func run(stdout io.Writer, stderr io.Writer, cfg config) error {

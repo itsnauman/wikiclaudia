@@ -57,6 +57,6 @@ func (s style) link(text string) string {
 	return s.wrap(ansiCyan+ansiUnderline, text)
 }
 
-func (s style) errorLine(text string) string {
-	return s.wrap(ansiRed, "✗ ") + text
+func (s style) errorLabel() string {
+	return s.wrap(ansiRed+ansiBold, "error:")
 }
