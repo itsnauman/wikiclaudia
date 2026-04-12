@@ -70,6 +70,57 @@ func TestRendererMarksMissingWikiLinks(t *testing.T) {
 	}
 }
 
+func TestRendererCustomLinkText(t *testing.T) {
+	renderer := NewRenderer()
+	html, _, err := renderer.Render("See [[strength-based-model|strengths-based]].", map[string]wiki.LinkTarget{
+		"strength-based-model": {
+			Slug:   "strength-based-model",
+			Exists: true,
+			Title:  "Strength Based Model",
+		},
+	})
+	if err != nil {
+		t.Fatalf("Render returned error: %v", err)
+	}
+
+	output := string(html)
+	if !strings.Contains(output, `<a href="/wiki/strength-based-model" class="wiki-link">strengths-based</a>`) {
+		t.Fatalf("custom link text not rendered correctly: %s", output)
+	}
+}
+
+func TestRendererCustomLinkTextMissingPage(t *testing.T) {
+	renderer := NewRenderer()
+	html, _, err := renderer.Render("See [[no-such-page|click here]].", map[string]wiki.LinkTarget{
+		"no-such-page": {
+			Slug:   "no-such-page",
+			Exists: false,
+			Title:  "No Such Page",
+		},
+	})
+	if err != nil {
+		t.Fatalf("Render returned error: %v", err)
+	}
+
+	output := string(html)
+	if !strings.Contains(output, `<a href="/wiki/no-such-page" class="wiki-link missing">click here</a>`) {
+		t.Fatalf("custom link text with missing page not rendered correctly: %s", output)
+	}
+}
+
+func TestCollectWikiLinkSlugsWithPipedLinks(t *testing.T) {
+	slugs := collectWikiLinkSlugs("See [[alpha|custom text]] and [[beta-page]].")
+	if len(slugs) != 2 {
+		t.Fatalf("expected 2 slugs, got %d: %v", len(slugs), slugs)
+	}
+	if slugs[0] != "alpha" {
+		t.Fatalf("expected slug 'alpha', got %q", slugs[0])
+	}
+	if slugs[1] != "beta-page" {
+		t.Fatalf("expected slug 'beta-page', got %q", slugs[1])
+	}
+}
+
 func TestRendererPreservesMarkdownFormatting(t *testing.T) {
 	renderer := NewRenderer()
 	body := "# Title\n\nA *paragraph* with **strong** text.\n\n> Quoted note.\n\n- One\n- Two\n"

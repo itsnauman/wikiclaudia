@@ -70,6 +70,9 @@ func collectWikiLinkSlugs(markdown string) []string {
 	slugs := make([]string, 0, len(matches))
 	for _, match := range matches {
 		slug := strings.TrimSpace(match[1])
+		if i := strings.IndexByte(slug, '|'); i >= 0 {
+			slug = strings.TrimSpace(slug[:i])
+		}
 		if slug == "" {
 			continue
 		}
@@ -106,18 +109,30 @@ func (p *wikiLinkInlineParser) Parse(parent ast.Node, block text.Reader, pc pars
 	if bytes.ContainsAny(inner, "[]\r\n") {
 		return nil
 	}
-	slug := strings.TrimSpace(string(inner))
-	if slug == "" {
+	raw := strings.TrimSpace(string(inner))
+	if raw == "" {
 		return nil
 	}
 	block.Advance(2 + end + 2)
+
+	slug, customLabel := raw, ""
+	if i := strings.IndexByte(raw, '|'); i >= 0 {
+		slug = strings.TrimSpace(raw[:i])
+		customLabel = strings.TrimSpace(raw[i+1:])
+	}
+	if slug == "" {
+		return nil
+	}
 
 	targets, _ := pc.Get(wikiLinkTargetsKey).(map[string]wiki.LinkTarget)
 	target, ok := targets[slug]
 	if !ok {
 		target = wiki.LinkTarget{Slug: slug, Title: wiki.HumanizeSlug(slug)}
 	}
-	label := target.Title
+	label := customLabel
+	if label == "" {
+		label = target.Title
+	}
 	if label == "" {
 		label = wiki.HumanizeSlug(slug)
 	}
