@@ -11,7 +11,6 @@ func TestRendererConvertsWikiLinks(t *testing.T) {
 	renderer := NewRenderer()
 	html, _, err := renderer.Render("See [[alpha-page]].", map[string]wiki.LinkTarget{
 		"alpha-page": {
-			Slug:   "alpha-page",
 			Exists: true,
 			Title:  "Alpha Page",
 		},
@@ -30,7 +29,7 @@ func TestRendererLeavesWikiLinksInsideCodeAlone(t *testing.T) {
 	renderer := NewRenderer()
 	body := "Inline `[[alpha-page]]` stays literal.\n\n```\n[[alpha-page]]\n```\n"
 	html, _, err := renderer.Render(body, map[string]wiki.LinkTarget{
-		"alpha-page": {Slug: "alpha-page", Exists: true, Title: "Alpha Page"},
+		"alpha-page": {Exists: true, Title: "Alpha Page"},
 	})
 	if err != nil {
 		t.Fatalf("Render returned error: %v", err)
@@ -52,7 +51,6 @@ func TestRendererMarksMissingWikiLinks(t *testing.T) {
 	renderer := NewRenderer()
 	html, _, err := renderer.Render("See [[missing-page]].", map[string]wiki.LinkTarget{
 		"missing-page": {
-			Slug:   "missing-page",
 			Exists: false,
 			Title:  "Missing Page",
 		},
@@ -74,7 +72,6 @@ func TestRendererCustomLinkText(t *testing.T) {
 	renderer := NewRenderer()
 	html, _, err := renderer.Render("See [[strength-based-model|strengths-based]].", map[string]wiki.LinkTarget{
 		"strength-based-model": {
-			Slug:   "strength-based-model",
 			Exists: true,
 			Title:  "Strength Based Model",
 		},
@@ -93,7 +90,6 @@ func TestRendererCustomLinkTextMissingPage(t *testing.T) {
 	renderer := NewRenderer()
 	html, _, err := renderer.Render("See [[no-such-page|click here]].", map[string]wiki.LinkTarget{
 		"no-such-page": {
-			Slug:   "no-such-page",
 			Exists: false,
 			Title:  "No Such Page",
 		},

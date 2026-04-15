@@ -184,7 +184,6 @@ func buildMetaLinks(slugs []string, targets map[string]wiki.LinkTarget) []metaLi
 		target, ok := targets[slug]
 		if !ok {
 			target = wiki.LinkTarget{
-				Slug:  slug,
 				Title: wiki.HumanizeSlug(slug),
 			}
 		}

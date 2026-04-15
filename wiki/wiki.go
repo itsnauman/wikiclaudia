@@ -40,7 +40,6 @@ type Article struct {
 }
 
 type LinkTarget struct {
-	Slug   string
 	Exists bool
 	Title  string
 }
@@ -145,7 +144,6 @@ func ResolveLinks(root string, slugs []string) map[string]LinkTarget {
 		seen[slug] = struct{}{}
 
 		target := LinkTarget{
-			Slug:  slug,
 			Title: HumanizeSlug(slug),
 		}
 
