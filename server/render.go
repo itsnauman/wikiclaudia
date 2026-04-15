@@ -127,7 +127,7 @@ func (p *wikiLinkInlineParser) Parse(parent ast.Node, block text.Reader, pc pars
 	targets, _ := pc.Get(wikiLinkTargetsKey).(map[string]wiki.LinkTarget)
 	target, ok := targets[slug]
 	if !ok {
-		target = wiki.LinkTarget{Slug: slug, Title: wiki.HumanizeSlug(slug)}
+		target = wiki.LinkTarget{Title: wiki.HumanizeSlug(slug)}
 	}
 	label := customLabel
 	if label == "" {
